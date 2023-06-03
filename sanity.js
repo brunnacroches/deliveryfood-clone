@@ -3,11 +3,11 @@ import imageUrlBuilder from "@sanity/image-url";
 import 'react-native-url-polyfill/auto';
 
 const client = createClient({
-    projectId: "qwoxusny",
+    projectId: "yuzshjfr",
     dataset: "production",
     useCdn: true,
-    apiVersion: '2023-05-03'
-})
+    apiVersion: '2021-10-21'
+});
 
 const builder = imageUrlBuilder(client);
 export const urlFor = (source) => builder.image(source);

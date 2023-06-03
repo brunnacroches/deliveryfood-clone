@@ -25,19 +25,24 @@ const HomeScreen = () => {
 
     useLayoutEffect(() => {
         navigation.setOptions({
-            headerShown: false,
+        headerShown: false,
         });
     }, []);
 
     useEffect(() => {
-        createClient.fetch(`
-        *[_type == "featured"] {
-            ...,
-           restaurants[]->{
-             ...,
-             dishes[]->
-           }
-        }`).then((data) => {
+        createClient
+            .fetch(
+            `
+                *[_type == "featured"] {
+                    ...,
+                restaurants[]->{
+                    ...,
+                    dishes[]->
+                }
+                }
+            `
+        )
+        .then((data) => {
             setFeaturedCategories(data);
         });
     }, []);
@@ -84,27 +89,16 @@ const HomeScreen = () => {
                     <Categories/>
 
                     {/* Feature */}
-                    <FeatureRow
-                        id="123"
-                        title="Featured"
-                        description="Paid placements from our partners"
-                        featuredCategory="featured"
+
+                    {featuredCategory?.map(category => (
+                        <FeatureRow
+                        key={category._id}
+                        id={category._id}
+                        title={category.name}
+                        description={category.short_description}
                     />
-                     {/* Tasty Discounts */}
-                    <FeatureRow
-                        id="1234"
-                        title="Tasty Discounts"
-                        description="Everyone's been enjoying these juicy discounts!"
-                        featuredCategory="discounts"
-                    />
-                     {/* Offers near your */}
-                    <FeatureRow
-                        id="1235"
-                        title="Offers near your"
-                        description="Why not support your local restaurant tonight"
-                        featuredCategory="offers"
-                    />
-                </ScrollView>
+                ))}
+            </ScrollView>
         </SafeAreaView>
     );
 };

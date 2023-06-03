@@ -1,10 +1,36 @@
-import React from 'react'
-import { ScrollView, Text, View } from 'react-native'
-import { ArrowRightIcon } from 'react-native-heroicons/outline'
-import RestaurantCards from './RestaurantCards'
+import React, { useEffect, useState } from 'react';
+import { ScrollView, Text, View } from 'react-native';
+import { ArrowRightIcon } from 'react-native-heroicons/outline';
+import createClient from '../sanity';
+import RestaurantCards from './RestaurantCards';
+
 
 const FeatureRow = ({id, title, description}) => {
-  return (
+    const [restaurants, setRestaurants] = useState([]);
+
+    useEffect(() => {
+        createClient.fetch(
+            `
+                *[_type == "featured" && _id == $id] {
+                    ...,
+                    restaurants[]->{
+                    ...,
+                        dishes[]->,
+                        type-> {
+                            name
+                        }
+                    },
+                }[0]
+            `,
+        { id }
+        ).then(data => {
+            setRestaurants(data?.restaurants);
+        }); 
+  }, []);
+
+//   console.log(restaurants);
+
+    return (
     <View>
         <View className="mt-4 flex-row items-center justify-between px-4">
             <Text className='font-bold text-lg'>{title}</Text>
@@ -19,31 +45,22 @@ const FeatureRow = ({id, title, description}) => {
             showsHorizontalScrollIndicator={false}
             className="pt-4"
         >
-        {/* RestaurantCards */}
-        <RestaurantCards 
-            id={123}
-            imgUrl="https://links.papareact.com/gn7"
-            title="Yo! Sushi"
-            rating={4.5}
-            genre="Japanese"
-            address="123 Main St"
-            short_description="This is a Test description"
-            dishes={[]}
-            long={20}
-            lat={0}
-        />
-        <RestaurantCards 
-            id={123}
-            imgUrl="https://links.papareact.com/gn7"
-            title="Yo! Sushi"
-            rating={4.5}
-            genre="Japanese"
-            address="123 Main St"
-            short_description="This is a Test description"
-            dishes={[]}
-            long={20}
-            lat={0}
-        />
+            {restaurants?.map(restaurant => (
+                <RestaurantCards
+                    key={restaurant._id}
+                    id={restaurant._id}
+                    imgUrl={restaurant.image}
+                    address={restaurant.address}
+                    title={restaurant.name}
+                    dishes={restaurant.dishes}
+                    rating={restaurant.rating}
+                    short_description={restaurant.short_description}
+                    genre={restaurant.type?.name}
+                    long={restaurant.long}
+                    lat={restaurant.lat}
+            />
+        ))}
+
         </ScrollView>
     </View>
   )
